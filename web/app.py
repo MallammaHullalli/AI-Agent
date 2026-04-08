@@ -1,13 +1,13 @@
-import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
+﻿import os
 from flask import Flask, render_template, jsonify, request
 from env import BusStopEnv
 from agent import BaselineAgent, AgentGrader
 
+BASE = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__,
-            template_folder=os.path.join(os.path.dirname(__file__), "templates"),
-            static_folder=os.path.join(os.path.dirname(__file__), "static"))
+            template_folder=os.path.join(BASE, "templates"),
+            static_folder=os.path.join(BASE, "static"))
 
 _env = None
 _agent = BaselineAgent()
