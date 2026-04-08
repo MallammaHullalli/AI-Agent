@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BMTC Smart Stop - Passenger View</title>
+<link rel="stylesheet" href="/static/style.css"/>
+<style>
+body{background:#060f07;}
+.pass-header{background:linear-gradient(135deg,#0a3d1a,#1a5c2a);border-bottom:3px solid var(--amber);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.pass-header-left{display:flex;align-items:center;gap:10px;}
+.ph-icon{font-size:1.8rem;}
+.ph-title{font-size:1rem;font-weight:700;color:var(--amber-light);}
+.ph-sub{font-size:.7rem;color:var(--text-muted);}
+.pass-wrap{max-width:480px;margin:0 auto;padding:0 16px 40px;}
+.stop-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+.stop-name{font-size:1.1rem;font-weight:700;color:var(--amber-light);margin-bottom:4px;}
+.stop-meta{font-size:.78rem;color:var(--text-muted);}
+.chips{display:flex;gap:10px;margin-top:14px;}
+.chip{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center;}
+.chip-val{font-size:1.3rem;font-weight:700;color:var(--green);}
+.chip-label{font-size:.68rem;color:var(--text-muted);margin-top:2px;}
+.chip.warn .chip-val{color:var(--amber);}
+.chip.danger .chip-val{color:var(--red);}
+.sec-title{font-size:.78rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.refresh-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.auto-ref{font-size:.72rem;color:var(--text-muted);}
+.btn-ref{background:var(--card);border:1px solid var(--border);color:var(--text-muted);padding:5px 12px;border-radius:6px;font-size:.75rem;cursor:pointer;}
+.btn-ref:hover{color:var(--text);border-color:var(--green);}
+.feed{display:flex;flex-direction:column;gap:10px;}
+.ncard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;border-left:4px solid;animation:slideIn .3s ease;}
+.ncard.system{border-left-color:var(--green);}
+.ncard.admin{border-left-color:var(--amber);}
+.ncard.alert{border-left-color:var(--red);}
+.ncard.info{border-left-color:var(--blue);}
+.ncard-hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.nbadge{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;}
+.nbadge.system{background:rgba(46,204,113,.2);color:var(--green);}
+.nbadge.admin{background:rgba(243,156,18,.2);color:var(--amber);}
+.nbadge.alert{background:rgba(231,76,60,.2);color:var(--red);}
+.nbadge.info{background:rgba(52,152,219,.2);color:var(--blue);}
+.ntime{font-size:.7rem;color:var(--text-muted);margin-left:auto;}
+.nmsg{font-size:.88rem;color:var(--text);line-height:1.5;}
+.empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:.85rem;}
+.empty-icon{font-size:2.5rem;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div class="pass-header">
+  <div class="pass-header-left">
+    <span class="ph-icon">🚌</span>
+    <div>
+      <div class="ph-title">BMTC Smart Stop</div>
+      <div class="ph-sub">Passenger Notification Board</div>
+    </div>
+  </div>
+  <span class="live-badge">LIVE</span>
+</div>
+
+<div class="pass-wrap">
+  <div class="stop-card">
+    <div class="stop-name">🚏 Majestic Bus Stop</div>
+    <div class="stop-meta">Kempegowda Bus Station, Bengaluru</div>
+    <div class="chips">
+      <div class="chip" id="chipCrowd">
+        <div class="chip-val" id="pCrowd">--</div>
+        <div class="chip-label">Waiting</div>
+      </div>
+      <div class="chip" id="chipWait">
+        <div class="chip-val" id="pWait">--</div>
+        <div class="chip-label">Avg Wait (min)</div>
+      </div>
+      <div class="chip" id="chipEta">
+        <div class="chip-val" id="pEta">--</div>
+        <div class="chip-label">Next Bus (min)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="refresh-bar">
+    <div class="sec-title">Live Notifications</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="auto-ref" id="countdown">Refreshing in 10s</span>
+      <button class="btn-ref" onclick="load()">Refresh</button>
+    </div>
+  </div>
+
+  <div class="feed" id="feed">
+    <div class="empty"><div class="empty-icon">📭</div>Loading...</div>
+  </div>
+</div>
+
+<script>
+var timer = 10;
+function load() {
+  fetch('/api/passenger_feed').then(function(r){return r.json();}).then(function(d){
+    var crowd = d.state.crowd_size;
+    var wait = d.state.avg_waiting_time;
+    var eta = d.state.bus_arrival_eta;
+    document.getElementById('pCrowd').textContent = crowd;
+    document.getElementById('pWait').textContent = wait.toFixed(1);
+    document.getElementById('pEta').textContent = eta.toFixed(1);
+    document.getElementById('chipCrowd').className = 'chip' + (crowd > 40 ? ' danger' : crowd > 25 ? ' warn' : '');
+    document.getElementById('chipWait').className = 'chip' + (wait > 10 ? ' danger' : wait > 6 ? ' warn' : '');
+    var feed = document.getElementById('feed');
+    if (!d.notifications.length) {
+      feed.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>No notifications yet.</div>';
+      return;
+    }
+    feed.innerHTML = d.notifications.map(function(n){
+      return '<div class="ncard ' + n.type + '">' +
+        '<div class="ncard-hdr"><span class="nbadge ' + n.type + '">' + n.source + '</span>' +
+        '<span class="ntime">' + n.time + '</span></div>' +
+        '<div class="nmsg">' + n.message + '</div></div>';
+    }).join('');
+  }).catch(function(){});
+  timer = 10;
+}
+setInterval(function(){
+  timer--;
+  document.getElementById('countdown').textContent = 'Refreshing in ' + timer + 's';
+  if (timer <= 0) load();
+}, 1000);
+load();
+</script>
+</body>
+</html>

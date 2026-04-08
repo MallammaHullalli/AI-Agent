@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BMTC Smart Stop - Login</title>
+<link rel="stylesheet" href="/static/style.css"/>
+<style>
+body{background:radial-gradient(ellipse at center,#0d2e14 0%,#060f07 100%);display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .icon{font-size:3rem;display:block;margin-bottom:8px;}
+.login-logo .title{font-size:1.3rem;font-weight:700;color:var(--amber-light);letter-spacing:1px;}
+.login-logo .sub{font-size:.8rem;color:var(--text-muted);margin-top:4px;}
+hr{border:none;border-top:1px solid var(--border);margin:0 0 24px;}
+.tabs{display:flex;gap:8px;margin-bottom:22px;}
+.tab{flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text-muted);font-size:.82rem;cursor:pointer;text-align:center;transition:all .2s;}
+.tab.active{background:var(--green-dark);color:white;border-color:var(--green);}
+.fg{margin-bottom:18px;}
+.fg label{display:block;font-size:.78rem;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.fg input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:.95rem;outline:none;transition:border-color .2s;}
+.fg input:focus{border-color:var(--green);}
+.btn-login{width:100%;background:linear-gradient(135deg,#1a7a42,#2ecc71);color:white;border:none;border-radius:10px;padding:13px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:6px;transition:opacity .2s;}
+.btn-login:hover{opacity:.9;}
+.err{background:rgba(231,76,60,.15);border:1px solid var(--red);color:#f0b8b0;border-radius:8px;padding:10px 14px;font-size:.82rem;margin-bottom:16px;}
+.pass-link{text-align:center;margin-top:20px;font-size:.8rem;color:var(--text-muted);}
+.pass-link a{color:var(--amber);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="login-logo">
+    <span class="icon">🚌</span>
+    <div class="title">BMTC Smart Stop</div>
+    <div class="sub">Crowd Management System</div>
+  </div>
+  <hr/>
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  <div class="tabs">
+    <div class="tab active">🛡 Admin Login</div>
+    <div class="tab" onclick="window.location='/passenger'">👤 Passenger View</div>
+  </div>
+  <form method="POST" action="/login">
+    <div class="fg">
+      <label>Username</label>
+      <input type="text" name="username" placeholder="Enter admin username" required/>
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter password" required/>
+    </div>
+    <button type="submit" class="btn-login">Login to Dashboard</button>
+  </form>
+  <div class="pass-link">Not an admin? <a href="/passenger">View passenger notifications</a></div>
+</div>
+</body>
+</html>
